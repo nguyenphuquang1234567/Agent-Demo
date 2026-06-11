@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hospital_agent_plan>
+    <goal>Xây dựng Agent Bệnh viện tư vấn dịch vụ và tra cứu trạng thái phòng khám</goal>
+    <core_components>
+        <component id="service_advisor">
+            <name>Thuật toán Tư vấn Dịch vụ</name>
+            <description>Sử dụng thuật toán để phân tích triệu chứng và gợi ý dịch vụ khám phù hợp dựa trên services.json.</description>
+            <data_source>services.json</data_source>
+        </component>
+        <component id="room_manager">
+            <name>Quản lý Trạng thái Phòng khám (Tool Calls)</name>
+            <description>Sử dụng cơ chế Function/Tool Calling của Gemini để tra cứu thông tin thời gian thực về phòng trống, số lượng bệnh nhân và thời gian chờ.</description>
+            <data_source>clinics_rooms.json</data_source>
+            <data_source>doctors.json</data_source>
+        </component>
+        <component id="structured_booking">
+            <name>Đặt Lịch Hẹn Với Structured Outputs</name>
+            <description>Sử dụng cơ chế Structured Outputs để trích xuất thông tin bệnh nhân và lưu lịch hẹn dưới dạng JSON.</description>
+            <data_source>appointments.json</data_source>
+        </component>
+        <component id="hospital_rag">
+            <name>Hệ Thống RAG Hỏi Đáp Hướng Dẫn Bệnh Viện</name>
+            <description>Tích hợp cơ sở dữ liệu tri thức (PDF/Text) để trả lời các câu hỏi về thủ tục, nội quy y tế bằng tìm kiếm ngữ cảnh.</description>
+            <data_source>hospital_guidelines.txt</data_source>
+        </component>
+        <component id="vision_ocr">
+            <name>Xử Lý Hình Ảnh &amp; OCR Toa Thuốc</name>
+            <description>Cho phép người bệnh gửi ảnh chụp toa thuốc hoặc vết thương để Gemini phân tích và định hướng chuyên khoa.</description>
+        </component>
+        <component id="web_search">
+            <name>Web Search (Tra Cứu Trực Tuyến Thời Gian Thực)</name>
+            <description>Tích hợp công cụ tìm kiếm (ví dụ: Google Search Grounding) để tra cứu thông tin y tế, tin tức dịch bệnh hoặc các kiến thức y khoa mới nhất trên Internet.</description>
+        </component>
+        <component id="computer_use">
+            <name>Computer Use (Tự Động Hóa Thao Tác Hệ Thống)</name>
+            <description>Tích hợp khả năng tự động điều khiển trình duyệt và phần mềm nội bộ để tra cứu hồ sơ bệnh án trên hệ thống HIS của bệnh viện.</description>
+        </component>
+        <component id="prompt_caching">
+            <name>Prompt Caching (Tối Ưu Bộ Nhớ Tạm)</name>
+            <description>Áp dụng cơ chế lưu trữ bộ nhớ đệm cho các System Prompt dài và RAG context để giảm chi phí API (token) và tăng tốc độ phản hồi (TTFT).</description>
+        </component>
+        <component id="batch_processing">
+            <name>Batch Processing (Xử Lý Dữ Liệu Hàng Loạt)</name>
+            <description>Sử dụng cơ chế bất đồng bộ để phân tích hàng loạt đánh giá của bệnh nhân, hồ sơ bệnh án hoặc thống kê toa thuốc vào cuối ngày với chi phí tiết kiệm.</description>
+        </component>
+        <ai_model>Gemini</ai_model>
+    </core_components>
+    <implementation_phases>
+        <!-- Các giai đoạn đã hoàn thiện -->
+        <phase step="1">
+            <name>Khởi tạo Dự án &amp; Dữ liệu (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Thiết lập môi trường lập trình (Python/Node.js).</task>
+                <task>Tải và map dữ liệu từ các file JSON vào bộ nhớ.</task>
+            </tasks>
+        </phase>
+        <phase step="2">
+            <name>Xây dựng Thuật toán Tư vấn (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Phát triển thuật toán (Keyword Matching / Vector Search) ánh xạ triệu chứng thành service_id.</task>
+                <task>Tích hợp kết quả thuật toán vào ngữ cảnh (context) của LLM.</task>
+            </tasks>
+        </phase>
+        <phase step="3">
+            <name>Phát triển Tool Calls (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Viết hàm check_room_status(department) truy xuất clinics_rooms.json.</task>
+                <task>Đăng ký hàm này dưới dạng công cụ (tools) cho Gemini Model.</task>
+            </tasks>
+        </phase>
+        <phase step="4">
+            <name>Tích hợp Chat Agent (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Xây dựng hệ thống hội thoại tương tác liên tục với người dùng.</task>
+                <task>Đảm bảo Agent có khả năng linh hoạt chuyển đổi giữa việc đưa ra tư vấn thuật toán và gọi Tool tra cứu phòng khám.</task>
+            </tasks>
+        </phase>
+        
+        <!-- Các giai đoạn tiếp theo -->
+        <phase step="5">
+            <name>Triển khai Đặt Lịch Hẹn &amp; Streaming (Giai Đoạn Tiếp Theo)</name>
+            <tasks>
+                <task>Cấu hình luồng phản hồi streaming (send_message_stream) tăng trải nghiệm UI.</task>
+                <task>Định nghĩa schema đặt lịch khám (Structured Outputs) để tự động trích xuất thông tin đăng ký của bệnh nhân.</task>
+                <task>Xây dựng hàm lưu thông tin đặt lịch vào appointments.json.</task>
+            </tasks>
+        </phase>
+        <phase step="6">
+            <name>Tích hợp Tri thức RAG (Hỏi đáp tài liệu) (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Chuẩn bị tập dữ liệu tài liệu y tế, hướng dẫn và nội quy bệnh viện (hospital_guidelines.txt).</task>
+                <task>Xây dựng cơ chế tìm kiếm văn bản liên quan (keyword/vector search) phù hợp nhất với câu hỏi.</task>
+                <task>Chèn nội dung tài liệu tìm được vào cấu trúc prompt bổ trợ tri thức cho mô hình.</task>
+            </tasks>
+        </phase>
+        <phase step="7">
+            <name>Hỗ trợ Đa phương tiện (Vision/OCR) (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Cấu hình mô hình Gemini nhận đầu vào là hình ảnh (Multimodal).</task>
+                <task>Phát triển tính năng trích xuất thông tin toa thuốc bằng OCR để hướng dẫn cách dùng thuốc.</task>
+                <task>Phân tích hình ảnh vết thương thô ngoài da để hướng dẫn khám chuyên khoa Da liễu.</task>
+            </tasks>
+        </phase>
+        <phase step="8">
+            <name>Tích hợp Web Search Thời Gian Thực (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Phát triển công cụ (tool) tìm kiếm web cho LLM hoặc bật tính năng Google Search Grounding.</task>
+                <task>Xây dựng luồng kiểm tra (fact-check) tự động để đảm bảo kết quả từ web là các nguồn y khoa uy tín trước khi trả lời bệnh nhân.</task>
+            </tasks>
+        </phase>
+        <phase step="9">
+            <name>Tối Ưu Hiệu Năng Với Prompt Caching (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Chuyển đổi toàn bộ tài liệu hướng dẫn (hospital_guidelines.txt) và System Instruction sang định dạng có thể cache (Context Caching API).</task>
+                <task>Thiết lập thời gian hết hạn (TTL) cho cache và đo lường sự khác biệt về độ trễ cũng như chi phí tiêu thụ token.</task>
+            </tasks>
+        </phase>
+        <phase step="10">
+            <name>Xử Lý Hồ Sơ Bằng Batch Processing (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Xây dựng kịch bản tổng hợp hàng trăm đoạn chat/phản hồi của bệnh nhân trong một ngày.</task>
+                <task>Tạo định dạng file JSONL và gửi qua Batch API để phân tích mức độ hài lòng và thống kê triệu chứng phổ biến lúc nửa đêm.</task>
+            </tasks>
+        </phase>
+        <phase step="11">
+            <name>Thử Nghiệm Computer Use Để Quản Lý HIS (Đã Hoàn Thành)</name>
+            <tasks>
+                <task>Tạo môi trường bảo mật (Sandbox) giả lập màn hình máy tính của nhân viên y tế.</task>
+                <task>Cấp quyền cho Agent điều khiển chuột và bàn phím để tự động tra cứu, mở bệnh án điện tử từ phần mềm nội bộ (HIS) khi bác sĩ yêu cầu.</task>
+            </tasks>
+        </phase>
+    </implementation_phases>
+</hospital_agent_plan>

@@ -1,0 +1,112 @@
+\documentclass[12pt]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+\setmainlanguage{vietnamese}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+
+\title{BÁO CÁO KỸ THUẬT: CÁC MODULE AI ĐÃ TRIỂN KHAI TRONG HỆ THỐNG AGENT BỆNH VIỆN}
+\author{Quang}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Giới thiệu}
+
+Báo cáo này tổng hợp chi tiết các module AI (dựa trên nền tảng Claude/Gemini Platform) đã được ứng dụng thực tế vào dự án \textbf{Trợ lý ảo Bệnh viện (Hospital AI Agent)}. Việc tích hợp các module này giúp Agent không chỉ có khả năng giao tiếp tự nhiên mà còn tương tác sâu với dữ liệu nội bộ, internet, và môi trường máy tính để thực hiện các quy trình y tế phức tạp.
+
+\section{Các Module Đã Triển Khai Thực Tế}
+
+\subsection{Messages API (Hội thoại đa lượt)}
+\textbf{Khái niệm:} Giao diện chính để duy trì ngữ cảnh giao tiếp với người dùng.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong file \texttt{main.py} thông qua vòng lặp \texttt{while True}.
+    \item Lưu trữ toàn bộ lịch sử trò chuyện (Chat History) giữa bệnh nhân và Agent.
+    \item Thiết lập \textit{System Instruction} định hình nhân cách (Persona) của một trợ lý y tế chuyên nghiệp, thân thiện và tuân thủ nguyên tắc an toàn y khoa.
+\end{itemize}
+
+\subsection{Retrieval-Augmented Generation (RAG)}
+\textbf{Khái niệm:} Kết hợp mô hình ngôn ngữ với hệ thống truy xuất dữ liệu ngoài.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong file \texttt{rag\_searcher.py}.
+    \item Cho phép Agent truy xuất thông tin từ tài liệu nội bộ \texttt{hospital\_guidelines.txt} (Quy trình khám, bảng giá, sơ đồ phòng ban).
+    \item Giúp Agent trả lời chính xác các câu hỏi đặc thù của bệnh viện mà không bị ảo giác (Hallucination).
+\end{itemize}
+
+\subsection{Tool Use (Function Calling)}
+\textbf{Khái niệm:} Cấp quyền cho AI tự động gọi các hàm (functions) hoặc API hệ thống.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong file \texttt{tools.py} với các công cụ tự định nghĩa:
+    \begin{itemize}
+        \item \texttt{check\_room\_status()}: Tra cứu tình trạng phòng khám và ước tính thời gian chờ.
+        \item \texttt{book\_appointment()}: Lưu thông tin đặt lịch khám của bệnh nhân vào file \texttt{appointments.json}.
+    \end{itemize}
+    \item Agent tự động phân tích ý định của người dùng và quyết định khi nào cần gọi tool.
+\end{itemize}
+
+\subsection{Vision (Xử lý Thị giác Máy tính)}
+\textbf{Khái niệm:} Phân tích, nhận diện và trích xuất thông tin từ hình ảnh.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong \texttt{test\_vision\_bot.py}.
+    \item Cho phép bệnh nhân tải lên hình ảnh đơn thuốc cũ hoặc sổ khám bệnh để Agent thực hiện OCR (trích xuất văn bản) và tư vấn.
+    \item Có khả năng phân tích hình ảnh biểu hiện ngoài da (da liễu) để đưa ra lời khuyên đi khám ban đầu.
+\end{itemize}
+
+\subsection{Web Search (Google Search Grounding)}
+\textbf{Khái niệm:} Tìm kiếm thông tin trên Internet theo thời gian thực để Fact-check.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng qua hàm \texttt{search\_web\_for\_medical\_info()} với model \texttt{gemini-2.5-flash}.
+    \item Khi bệnh nhân hỏi về tình hình dịch bệnh mới nhất (ví dụ: Dịch hạch, Covid), Agent sẽ tạo một sub-call truy vấn thẳng vào Google Search để lấy dữ liệu thực tế trước khi trả lời, đảm bảo tính cập nhật và chính xác tuyệt đối.
+\end{itemize}
+
+\subsection{Prompt Caching (Tối ưu Bộ nhớ đệm)}
+\textbf{Khái niệm:} Lưu trữ trước ngữ cảnh dài trên máy chủ để tái sử dụng, giảm chi phí và độ trễ.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong \texttt{main.py} để Cache toàn bộ file \texttt{hospital\_guidelines.txt} và System Prompt.
+    \item Thiết lập TTL (Time To Live) 60 phút.
+    \item Xây dựng cơ chế \textit{Graceful Fallback} tự động chuyển về chạy tuần tự nếu vượt quá giới hạn Free Tier (Lỗi 429).
+    \item Đo lường trực tiếp Token tiêu thụ và Latency ở mỗi phản hồi.
+\end{itemize}
+
+\subsection{Batch Processing (Xử lý Hàng loạt)}
+\textbf{Khái niệm:} Xử lý bất đồng bộ số lượng lớn yêu cầu vào thời gian máy chủ rảnh.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong file \texttt{batch\_processor.py}.
+    \item Tạo kịch bản gom hàng trăm đoạn chat phản hồi của bệnh nhân trong ngày thành file \texttt{patient\_logs.jsonl}.
+    \item Gửi file lên hệ thống Batch API bằng \texttt{gemini-2.5-flash} để đánh giá mức độ hài lòng (Sentiment Analysis) và thống kê triệu chứng vào lúc 12h đêm.
+    \item Giúp bệnh viện tiết kiệm 50\% chi phí so với việc gọi API trực tiếp ban ngày.
+\end{itemize}
+
+\subsection{Computer Use (Khả năng điều khiển máy tính)}
+\textbf{Khái niệm:} Cấp quyền cho Agent thao tác chuột, bàn phím và giao diện máy tính như con người.
+\textbf{Thực tế triển khai:}
+\begin{itemize}
+    \item Ứng dụng trong file \texttt{computer\_use\_sandbox.py}.
+    \item Xây dựng môi trường giả lập an toàn (Sandbox) để chặn các thao tác điều khiển chuột vật lý, tránh hỏng hệ thống.
+    \item Cung cấp các Tools: \texttt{mouse\_click}, \texttt{keyboard\_type}, \texttt{press\_key}.
+    \item Agent đã tự động suy luận tọa độ và phím bấm để thao tác mở bệnh án từ phần mềm quản lý nội bộ (HIS) khi được yêu cầu.
+\end{itemize}
+
+\section{Kết luận}
+
+Hệ thống AI Agent Bệnh viện đã tích hợp thành công \textbf{8 module cốt lõi} của nền tảng LLM hiện đại. Việc phối hợp nhịp nhàng giữa RAG, Tool Use, Web Search (để tăng cường dữ liệu) cùng với Prompt Caching, Batch Processing (để tối ưu hiệu năng/chi phí) và Vision, Computer Use (để mở rộng phương thức tương tác) đã chứng minh khả năng xây dựng một Hệ thống Thông minh Toàn diện (Super AI) áp dụng trực tiếp cho lĩnh vực Y tế số.
+
+\end{document}

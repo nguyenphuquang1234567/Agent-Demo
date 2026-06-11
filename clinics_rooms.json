@@ -1,0 +1,47 @@
+[
+  {
+    "room_id": "R101",
+    "department": "Tim Mạch",
+    "doctor": "Nguyễn Văn Minh",
+    "status": "AVAILABLE",
+    "current_patients": 2,
+    "capacity": 10,
+    "estimated_wait_minutes": 10
+  },
+  {
+    "room_id": "R102",
+    "department": "Nội Tổng Quát",
+    "doctor": "Trần Thị Lan",
+    "status": "BUSY",
+    "current_patients": 8,
+    "capacity": 10,
+    "estimated_wait_minutes": 40
+  },
+  {
+    "room_id": "R103",
+    "department": "Nhi Khoa",
+    "doctor": "Lê Quốc Huy",
+    "status": "FULL",
+    "current_patients": 10,
+    "capacity": 10,
+    "estimated_wait_minutes": 90
+  },
+  {
+    "room_id": "R104",
+    "department": "Da Liễu",
+    "doctor": "Phạm Minh Anh",
+    "status": "AVAILABLE",
+    "current_patients": 1,
+    "capacity": 10,
+    "estimated_wait_minutes": 5
+  },
+  {
+    "room_id": "R105",
+    "department": "Tai Mũi Họng",
+    "doctor": "Hoàng Văn Thái",
+    "status": "AVAILABLE",
+    "current_patients": 3,
+    "capacity": 10,
+    "estimated_wait_minutes": 15
+  }
+]

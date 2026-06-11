@@ -1,0 +1,37 @@
+[
+  {
+    "service_id": "S001",
+    "name": "Khám Nội Tổng Quát",
+    "description": "Khám sức khỏe tổng quát cho người lớn",
+    "price": 500000,
+    "duration": 30
+  },
+  {
+    "service_id": "S002",
+    "name": "Khám Tim Mạch",
+    "description": "Kiểm tra và tư vấn các bệnh lý tim mạch",
+    "price": 800000,
+    "duration": 45
+  },
+  {
+    "service_id": "S003",
+    "name": "Khám Nhi Khoa",
+    "description": "Khám cho trẻ em dưới 16 tuổi",
+    "price": 400000,
+    "duration": 30
+  },
+  {
+    "service_id": "S004",
+    "name": "Khám Da Liễu",
+    "description": "Điều trị các bệnh về da",
+    "price": 600000,
+    "duration": 30
+  },
+  {
+    "service_id": "S005",
+    "name": "Khám Tai Mũi Họng",
+    "description": "Khám các bệnh lý tai, mũi, họng",
+    "price": 550000,
+    "duration": 30
+  }
+]

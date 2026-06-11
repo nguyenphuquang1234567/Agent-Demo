@@ -1,0 +1,32 @@
+[
+  {
+    "doctor_id": "D001",
+    "name": "Nguyễn Văn Minh",
+    "specialty": "Tim Mạch",
+    "room_id": "R101"
+  },
+  {
+    "doctor_id": "D002",
+    "name": "Trần Thị Lan",
+    "specialty": "Nội Tổng Quát",
+    "room_id": "R102"
+  },
+  {
+    "doctor_id": "D003",
+    "name": "Lê Quốc Huy",
+    "specialty": "Nhi Khoa",
+    "room_id": "R103"
+  },
+  {
+    "doctor_id": "D004",
+    "name": "Phạm Minh Anh",
+    "specialty": "Da Liễu",
+    "room_id": "R104"
+  },
+  {
+    "doctor_id": "D005",
+    "name": "Hoàng Văn Thái",
+    "specialty": "Tai Mũi Họng",
+    "room_id": "R105"
+  }
+]

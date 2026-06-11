@@ -1,0 +1,126 @@
+\documentclass[12pt]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{vietnamese}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mdframed}
+
+\title{BÁO CÁO CÁC MODULE ĐÃ TRIỂN KHAI CHI TIẾT TRONG DỰ ÁN AGENT BỆNH VIỆN}
+\author{Quang}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Giới thiệu}
+Tài liệu này trình bày chi tiết về mặt kỹ thuật, kiến trúc và các đoạn mã cốt lõi của các module trọng tâm đã được triển khai thành công trong hệ thống Trợ lý Y tế (Hospital Agent). Hệ thống được xây dựng bằng Python, sử dụng SDK \texttt{google.genai} với mô hình \texttt{gemini-3.1-flash-lite}.
+
+\section{1. Messages API (Hội thoại \& System Prompt)}
+\subsection{Cơ chế hoạt động \& System Instruction}
+Hệ thống duy trì một vòng lặp \texttt{while True} trong file \texttt{main.py} để liên tục nhận câu hỏi từ người dùng. Nhằm định hướng hành vi của mô hình, một đoạn \texttt{system\_instruction} được cấu hình qua \texttt{types.GenerateContentConfig}. Mô hình được yêu cầu đóng vai trò bác sĩ, sử dụng thông tin ngầm (SYSTEM\_INFO) để tư vấn mà không làm lộ cách hoạt động kỹ thuật.
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+sys_instruct = """Bạn là trợ lý y tế thông minh của bệnh viện.
+Nhiệm vụ của bạn:
+1. Khuyên bệnh nhân sử dụng dịch vụ dựa trên [SYSTEM_INFO].
+2. Tra cứu tình trạng phòng khám bằng check_room_status.
+3. Đặt lịch khám bằng book_appointment.
+Trả lời ngắn gọn, lịch sự, ân cần."""
+
+chat = client.chats.create(
+    model="gemini-3.1-flash-lite",
+    config=types.GenerateContentConfig(
+        system_instruction=sys_instruct,
+        tools=[check_room_status, book_appointment],
+        temperature=0.3
+    )
+)
+\end{verbatim}
+\end{mdframed}
+
+\subsection{Xử lý Streaming Response}
+Do mô hình \texttt{gemini-3.1-flash-lite} gặp giới hạn khi kết hợp Tool Use và chế độ stream API (trả về chunk rỗng), hệ thống chuyển sang dùng hàm \texttt{send\_message} đồng bộ. Để đảm bảo trải nghiệm UI cho người dùng, tính năng streaming được giả lập cục bộ bằng cách in từng ký tự kèm độ trễ:
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+response = chat.send_message(message_content)
+for char in (response.text or ""):
+    sys.stdout.write(char)
+    sys.stdout.flush()
+    time.sleep(0.01)
+\end{verbatim}
+\end{mdframed}
+
+\section{2. Tool Use (Tích hợp Công cụ Ngoài)}
+Hệ thống cung cấp cho AI khả năng tương tác với dữ liệu bệnh viện thực tế thông qua các hàm Python trong file \texttt{tools.py} (class \texttt{HospitalTools}).
+
+\subsection{Các công cụ đã triển khai}
+\begin{itemize}
+    \item \texttt{check\_room\_status(department\_name: str) -> str}: LLM tự động gọi để kiểm tra số lượng bệnh nhân đang chờ, số bác sĩ trực.
+    \item \texttt{book\_appointment(patient\_name: str, phone\_number: str, service\_id: str, appointment\_time: str) -> str}: LLM dùng để lưu lịch khám vào hệ thống JSON (\texttt{appointments.json}).
+\end{itemize}
+
+\subsection{Cấu hình cho LLM}
+Hàm được định nghĩa trực tiếp trong \texttt{main.py} bọc lấy đối tượng \texttt{HospitalTools}. Phần \texttt{Docstring} của hàm đóng vai trò là prompt cực kỳ quan trọng hướng dẫn LLM cách sử dụng:
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+def book_appointment(patient_name: str, phone_number: str, service_id: str, appointment_time: str) -> str:
+    """
+    Sử dụng hàm này để đặt lịch hẹn khám bệnh cho bệnh nhân khi họ cung cấp đầy đủ thông tin: Họ tên, SĐT, mã dịch vụ và thời gian...
+    """
+    return hospital_tools.book_appointment(patient_name, phone_number, service_id, appointment_time)
+\end{verbatim}
+\end{mdframed}
+Sau đó, mảng các hàm được truyền vào \texttt{tools} trong cấu hình tạo chat session.
+
+\section{3. Vision (Xử lý Đa phương tiện)}
+Mô hình hỗ trợ xử lý ảnh (Multimodal) khi đầu vào bao gồm cả ảnh (Pillow Object) và text prompt.
+
+\subsection{Trích xuất và Nạp ảnh}
+Hệ thống sử dụng biểu thức chính quy (Regex) để tự động phát hiện đường dẫn file ảnh (như \texttt{.png, .jpg}) trong chuỗi văn bản của người dùng, tự động loại bỏ dấu nháy, làm sạch chuỗi và nạp ảnh qua thư viện \texttt{PIL (Pillow)}.
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+img = Image.open(image_path)
+\end{verbatim}
+\end{mdframed}
+
+\subsection{Prompt phân tích Đa phương thức (OCR \& Chẩn đoán)}
+Hệ thống gắn kèm \texttt{vision\_instruct} để ép mô hình tập trung vào hai nghiệp vụ chính: đọc đơn thuốc (OCR tên thuốc, liều dùng) và nhận diện tổn thương da (báo hiệu khám khoa Da liễu). Dữ liệu được gửi qua \texttt{send\_message} dưới dạng danh sách (list):
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+augmented_prompt = f"[SYSTEM_INFO: {vision_instruct}]\n\nCâu hỏi: {clean_query}"
+message_content = [img, augmented_prompt] # Payload Multimodal
+\end{verbatim}
+\end{mdframed}
+
+\section{4. Retrieval-Augmented Generation (RAG)}
+Để trả lời các câu hỏi về quy định, giờ giấc, hướng dẫn một cách chính xác mà không phụ thuộc vào dữ liệu huấn luyện có sẵn, hệ thống sử dụng phương pháp RAG nhúng tri thức vào ngữ cảnh.
+
+\subsection{Cơ chế Lexical Search}
+File \texttt{rag\_searcher.py} chứa class \texttt{RAGSearcher}. Thuật toán sử dụng phương pháp đếm tần suất từ khóa (Keyword Overlap) giữa câu hỏi của người dùng và các câu trong tài liệu \texttt{hospital\_guidelines.txt}. Hệ thống định nghĩa một tập \texttt{stop\_words} (các từ nối, đại từ tiếng Việt thông dụng như: là, có, không, và...) để loại bỏ nhiễu và chỉ tính điểm trên các từ ngữ mang tính chuyên môn.
+
+\subsection{Tiêm dữ liệu (Inject Context)}
+Đoạn văn bản có điểm số trùng khớp cao nhất sẽ được lấy ra và tiêm tự động vào \texttt{[SYSTEM\_INFO]}:
+
+\begin{mdframed}[backgroundcolor=gray!10]
+\begin{verbatim}
+matched_guideline = rag_searcher.search(user_input)
+if matched_guideline:
+    system_info_parts.append(f"Tài liệu hướng dẫn liên quan:\n{matched_guideline}")
+    
+augmented_prompt = f"[SYSTEM_INFO: {system_info}]\nNgười dùng nói: {user_input}"
+\end{verbatim}
+\end{mdframed}
+
+Nhờ vậy, mô hình có thể truy xuất thông tin quy định chính xác mà hạn chế tối đa tình trạng ảo giác (hallucination).
+
+\end{document}

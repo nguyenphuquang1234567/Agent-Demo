@@ -1,0 +1,217 @@
+\documentclass[12pt]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+\setmainlanguage{vietnamese}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+
+\title{TÌM HIỂU CLAUDE PLATFORM VÀ CÁC MODULE ĐƯỢC HỖ TRỢ}
+\author{Quang}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Giới thiệu}
+
+Claude là dòng mô hình ngôn ngữ lớn (Large Language Model - LLM) được phát triển bởi Anthropic. Ngoài khả năng trò chuyện và sinh văn bản, Claude Platform còn cung cấp nhiều công cụ giúp xây dựng chatbot, AI Agent, hệ thống tự động hóa và các ứng dụng trí tuệ nhân tạo hiện đại.
+
+Báo cáo này trình bày các module và tính năng chính hiện đang được Claude Platform hỗ trợ.
+
+\section{Các mô hình Claude}
+
+Claude hiện cung cấp nhiều dòng mô hình phục vụ các nhu cầu khác nhau:
+
+\begin{itemize}
+    \item \textbf{Claude Opus}: Mô hình mạnh nhất, khả năng suy luận cao.
+    \item \textbf{Claude Sonnet}: Cân bằng giữa hiệu năng, tốc độ và chi phí.
+    \item \textbf{Claude Haiku}: Tối ưu cho tốc độ phản hồi và chi phí thấp.
+\end{itemize}
+
+Các mô hình này có thể được sử dụng trong:
+
+\begin{itemize}
+    \item Chatbot
+    \item Trợ lý lập trình
+    \item Phân tích dữ liệu
+    \item Hệ thống AI Agent
+\end{itemize}
+
+\section{Messages API}
+
+Messages API là giao diện chính để giao tiếp với Claude.
+
+Các tính năng:
+
+\begin{itemize}
+    \item Hỗ trợ hội thoại nhiều lượt
+    \item Thiết lập System Prompt
+    \item Streaming Response
+    \item Kết xuất dữ liệu có cấu trúc
+\end{itemize}
+
+Đây là module được sử dụng nhiều nhất khi xây dựng chatbot hoặc trợ lý AI.
+
+\section{Vision}
+
+Claude hỗ trợ xử lý và phân tích hình ảnh.
+
+Các ứng dụng:
+
+\begin{itemize}
+    \item OCR (nhận dạng ký tự)
+    \item Phân tích ảnh chụp màn hình
+    \item Đọc biểu đồ
+    \item Trích xuất thông tin từ tài liệu
+\end{itemize}
+
+\section{Tool Use}
+
+Tool Use cho phép Claude tương tác với các công cụ bên ngoài.
+
+Ví dụ:
+
+\begin{itemize}
+    \item Gọi API
+    \item Truy vấn cơ sở dữ liệu
+    \item Truy cập hệ thống nội bộ
+    \item Thực hiện quy trình tự động hóa
+\end{itemize}
+
+Tính năng này tương tự Function Calling trong OpenAI.
+
+\section{Web Search}
+
+Claude có khả năng tìm kiếm thông tin trên Internet thông qua các công cụ được tích hợp.
+
+Ứng dụng:
+
+\begin{itemize}
+    \item Tra cứu thông tin thời gian thực
+    \item Tìm tin tức mới
+    \item Cập nhật dữ liệu ngoài mô hình
+\end{itemize}
+
+\section{Code Execution}
+
+Claude có thể thực thi mã nguồn trong môi trường sandbox an toàn.
+
+Các trường hợp sử dụng:
+
+\begin{itemize}
+    \item Tính toán
+    \item Phân tích dữ liệu
+    \item Xử lý tập tin
+    \item Sinh biểu đồ
+\end{itemize}
+
+\section{Computer Use}
+
+Computer Use là một trong những tính năng nổi bật của Anthropic.
+
+Khả năng:
+
+\begin{itemize}
+    \item Điều khiển chuột
+    \item Nhập liệu bằng bàn phím
+    \item Tương tác với trình duyệt
+    \item Tự động thao tác trên giao diện máy tính
+\end{itemize}
+
+Tính năng này thường được sử dụng để xây dựng AI Agent có khả năng làm việc giống con người.
+
+\section{Model Context Protocol (MCP)}
+
+MCP là giao thức mở được Anthropic phát triển nhằm chuẩn hóa việc kết nối giữa mô hình AI và các công cụ bên ngoài.
+
+Một số tích hợp phổ biến:
+
+\begin{itemize}
+    \item GitHub
+    \item Slack
+    \item Database
+    \item Hệ thống doanh nghiệp
+\end{itemize}
+
+MCP đang trở thành một tiêu chuẩn quan trọng trong lĩnh vực AI Agent.
+
+\section{Agent SDK}
+
+Agent SDK hỗ trợ xây dựng các hệ thống AI Agent.
+
+Các khả năng:
+
+\begin{itemize}
+    \item Quản lý công cụ
+    \item Điều phối workflow
+    \item Xây dựng Multi-Agent
+\end{itemize}
+
+\section{Retrieval-Augmented Generation (RAG)}
+
+RAG là kỹ thuật kết hợp giữa mô hình ngôn ngữ và hệ thống truy xuất dữ liệu.
+
+Ứng dụng:
+
+\begin{itemize}
+    \item Chat với tài liệu PDF
+    \item Hệ thống hỏi đáp nội bộ
+    \item Chatbot doanh nghiệp
+\end{itemize}
+
+\section{Prompt Caching}
+
+Prompt Caching giúp tái sử dụng phần prompt đã được xử lý trước đó.
+
+Lợi ích:
+
+\begin{itemize}
+    \item Giảm chi phí API
+    \item Tăng tốc độ phản hồi
+    \item Tối ưu tài nguyên
+\end{itemize}
+
+\section{Batch Processing}
+
+Batch Processing cho phép xử lý hàng loạt yêu cầu bất đồng bộ.
+
+Ví dụ:
+
+\begin{itemize}
+    \item Phân tích hàng nghìn tài liệu
+    \item Dịch dữ liệu số lượng lớn
+    \item Phân loại dữ liệu quy mô lớn
+\end{itemize}
+
+\section{Extended Thinking}
+
+Extended Thinking là chế độ suy luận nâng cao của Claude.
+
+Thích hợp cho:
+
+\begin{itemize}
+    \item Toán học
+    \item Lập trình
+    \item Suy luận logic
+    \item Bài toán nhiều bước
+\end{itemize}
+
+
+
+\section{Kết luận}
+
+Claude Platform không chỉ là một API chatbot mà là một hệ sinh thái hoàn chỉnh để phát triển các ứng dụng AI hiện đại. Những tính năng nổi bật như Tool Use, MCP, Computer Use và Agent SDK giúp xây dựng các hệ thống AI Agent có khả năng tương tác với môi trường thực tế và tự động hóa nhiều tác vụ phức tạp.
+
+Trong tương lai, Claude Platform được kỳ vọng sẽ đóng vai trò quan trọng trong việc phát triển các hệ thống AI Agent thông minh và các ứng dụng doanh nghiệp sử dụng trí tuệ nhân tạo.
+
+\end{document}

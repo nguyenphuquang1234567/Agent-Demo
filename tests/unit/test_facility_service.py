@@ -18,7 +18,7 @@ class FakeClinicRepository:
 
 def test_check_room_status_found():
     fake_repo = FakeClinicRepository()
-    service = FacilityService(fake_repo)
+    service = FacilityService(fake_repo)  # type: ignore
     
     result = service.check_room_status("Khoa Da Liễu")
     
@@ -28,7 +28,7 @@ def test_check_room_status_found():
 
 def test_check_room_status_not_found():
     fake_repo = FakeClinicRepository()
-    service = FacilityService(fake_repo)
+    service = FacilityService(fake_repo)  # type: ignore
     
     result = service.check_room_status("Khoa Tim Mạch")
     

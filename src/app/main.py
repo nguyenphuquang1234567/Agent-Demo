@@ -207,7 +207,7 @@ Trả lời ngắn gọn, lịch sự, ân cần.
                 message_content = augmented_prompt
 
             start_time = time.time()
-            response = chat.send_message(message_content)
+            response = chat.send_message(message_content)  # type: ignore
             
             print("🤖 Agent: ", end="", flush=True)
             for char in (response.text or ""):

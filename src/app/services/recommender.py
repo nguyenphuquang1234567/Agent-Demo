@@ -20,7 +20,7 @@ class ServiceRecommender:
         words = symptoms.split()
         
         services = self.service_repo.load_all()
-        scores = {service['service_id']: 0 for service in services}
+        scores: dict[str, int] = {str(service['service_id']): 0 for service in services}
         
         # Chấm điểm dựa trên Keyword Matching
         for service_id, keywords in self.keyword_map.items():
@@ -33,7 +33,7 @@ class ServiceRecommender:
                     if kw in words:
                         scores[service_id] += 1
                         
-        best_service_id = max(scores, key=scores.get)
+        best_service_id = max(scores, key=lambda k: scores[k])
         
         if scores[best_service_id] > 0:
             return best_service_id

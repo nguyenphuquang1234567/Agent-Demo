@@ -26,7 +26,7 @@ class FakeAppointmentRepository:
 def test_book_appointment_success():
     fake_service_repo = FakeServiceRepository()
     fake_appointment_repo = FakeAppointmentRepository()
-    service = BookingService(fake_appointment_repo, fake_service_repo)
+    service = BookingService(fake_appointment_repo, fake_service_repo)  # type: ignore
     
     # Thực hiện đặt lịch với thông tin giả định
     result_str = service.book_appointment(

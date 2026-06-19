@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<refactor_plan>
+    <project_name>Hospital AI Agent Refactoring</project_name>
+    <objective>Refactor the project based on python.tex structure and design patterns (Repository, Service Layer, Dependency Injection, etc.)</objective>
+    
+    <implementation_phases>
+        <phase step="1">
+            <name>Khởi tạo Cấu trúc Dự án (Project Structure Setup)</name>
+            <tasks>
+                <task>Tạo thư mục src/app với các thư mục con: api, core, services, repositories, models, utils.</task>
+                <task>Tạo thư mục tests/unit và tests/integration.</task>
+                <task>Tạo file pyproject.toml, README.md, .env.example, và .gitignore.</task>
+            </tasks>
+        </phase>
+        
+        <phase step="2">
+            <name>Tầng Cấu hình và Core (Core &amp; Config Layer)</name>
+            <tasks>
+                <task>Chuyển GEMINI_API_KEY và các thiết lập cứng vào file .env.</task>
+                <task>Tạo src/app/core/config.py áp dụng Singleton Pattern (hoặc Pydantic BaseSettings) để quản lý cấu hình.</task>
+                <task>Thiết lập logging cơ bản trong core/logger.py.</task>
+            </tasks>
+        </phase>
+        
+        <phase step="3">
+            <name>Tầng Lưu trữ (Repository Layer)</name>
+            <tasks>
+                <task>Áp dụng Repository Pattern để thay thế data_loader.py.</task>
+                <task>Tạo BaseRepository và các class cụ thể: ClinicRepository, ServiceRepository, AppointmentRepository.</task>
+                <task>Tách biệt logic đọc/ghi file JSON (clinics_rooms.json, appointments.json) khỏi tầng Service.</task>
+            </tasks>
+        </phase>
+        
+        <phase step="4">
+            <name>Tầng Dịch vụ (Service Layer &amp; Dependency Injection)</name>
+            <tasks>
+                <task>Refactor tools.py thành các services độc lập: BookingService, WebSearchService, FacilityService.</task>
+                <task>Refactor rag_searcher.py thành DocumentService.</task>
+                <task>Sử dụng Dependency Injection để truyền các Repositories vào bên trong các Services.</task>
+                <task>Áp dụng Strategy Pattern/Factory Pattern (nếu cần) để lựa chọn model Gemini (gemini-3.1-flash-lite vs gemini-2.5-flash) dựa trên tác vụ.</task>
+            </tasks>
+        </phase>
+        
+        <phase step="5">
+            <name>Tầng Ứng dụng (Controller/Main Layer)</name>
+            <tasks>
+                <task>Cập nhật main.py (di chuyển vào src/app/main.py) đóng vai trò là Controller chính.</task>
+                <task>Khởi tạo các dependencies (Repos, Services) và tiêm (inject) vào logic xử lý chat của Agent.</task>
+                <task>Tích hợp các luồng batch_processor.py và computer_use_sandbox.py thành các Entrypoints hoặc CLI commands riêng biệt.</task>
+            </tasks>
+        </phase>
+        
+        <phase step="6">
+            <name>Kiểm thử (Testing Structure)</name>
+            <tasks>
+                <task>Thiết lập pytest.</task>
+                <task>Viết các Unit Tests trong thư mục tests/unit/ với FakeRepository (Mock) để kiểm tra BookingService và FacilityService mà không cần đọc file JSON thật.</task>
+            </tasks>
+        </phase>
+    </implementation_phases>
+</refactor_plan>

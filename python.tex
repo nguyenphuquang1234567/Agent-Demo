@@ -1,0 +1,383 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}
+
+\setmainlanguage{vietnamese}
+\setmainfont{Times New Roman}
+
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    breaklines=true,
+    frame=single,
+    showstringspaces=false
+}
+
+\title{
+BÁO CÁO\\
+Project Structure và Design Pattern\\
+trong Triển khai Python Code
+}
+
+\author{Quang}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Mục tiêu}
+
+Khi phát triển các dự án Python quy mô lớn, yêu cầu không chỉ dừng lại ở việc chương trình hoạt động đúng mà còn cần đảm bảo:
+
+\begin{itemize}
+    \item Dễ đọc và dễ bảo trì;
+    \item Dễ kiểm thử;
+    \item Dễ mở rộng;
+    \item Hạn chế sự phụ thuộc chặt chẽ giữa các thành phần;
+    \item Hỗ trợ làm việc nhóm hiệu quả.
+\end{itemize}
+
+Do đó, việc xây dựng cấu trúc dự án hợp lý kết hợp với việc áp dụng các Design Pattern phù hợp là rất quan trọng.
+
+\section{Cấu trúc Project Python đề xuất}
+
+Một cấu trúc thường được sử dụng là mô hình \texttt{src layout}:
+
+\begin{lstlisting}
+my_project/
+|
+|-- pyproject.toml
+|-- README.md
+|-- .env.example
+|-- .gitignore
+|
+|-- src/
+|   |-- app/
+|   |   |-- main.py
+|   |   |
+|   |   |-- api/
+|   |   |-- core/
+|   |   |-- services/
+|   |   |-- repositories/
+|   |   |-- models/
+|   |   \-- utils/
+|
+\-- tests/
+    |-- unit/
+    \-- integration/
+\end{lstlisting}
+
+\subsection{Ý nghĩa các thư mục}
+
+\begin{longtable}{p{4cm}p{9cm}}
+\toprule
+Thư mục & Chức năng \\
+\midrule
+api & Định nghĩa endpoint, controller, schema \\
+core & Config, logging, security \\
+services & Chứa business logic \\
+repositories & Làm việc với database hoặc API ngoài \\
+models & Entity/domain model \\
+utils & Hàm hỗ trợ dùng chung \\
+tests & Unit test và integration test \\
+\bottomrule
+\end{longtable}
+
+\section{Layered Architecture}
+
+Luồng xử lý được khuyến nghị như sau:
+
+\begin{center}
+Client
+
+$\downarrow$
+
+API / Controller
+
+$\downarrow$
+
+Service Layer
+
+$\downarrow$
+
+Repository Layer
+
+$\downarrow$
+
+Database hoặc External API
+\end{center}
+
+Nguyên tắc:
+
+\begin{quote}
+API gọi Service, Service gọi Repository, Repository giao tiếp với Database.
+\end{quote}
+
+Điều này giúp giảm sự phụ thuộc giữa các tầng và tăng khả năng kiểm thử.
+
+\section{Repository Pattern}
+
+Repository Pattern giúp tách biệt logic truy cập dữ liệu khỏi business logic.
+
+Ví dụ:
+
+\begin{lstlisting}
+class UserRepository:
+    def find_by_email(self, email: str):
+        pass
+\end{lstlisting}
+
+Service sẽ không cần biết dữ liệu đến từ PostgreSQL, MongoDB hay REST API.
+
+Lợi ích:
+
+\begin{itemize}
+    \item Giảm phụ thuộc vào database cụ thể;
+    \item Dễ thay đổi implementation;
+    \item Hỗ trợ mock khi kiểm thử.
+\end{itemize}
+
+\section{Factory Pattern}
+
+Factory Pattern được sử dụng để tạo đối tượng linh hoạt.
+
+Ví dụ:
+
+\begin{lstlisting}
+def create_payment_provider(provider):
+    if provider == "stripe":
+        return StripePayment()
+
+    if provider == "paypal":
+        return PaypalPayment()
+
+    raise ValueError("Unsupported provider")
+\end{lstlisting}
+
+Lợi ích:
+
+\begin{itemize}
+    \item Giảm việc khởi tạo đối tượng rải rác;
+    \item Dễ mở rộng khi thêm loại mới;
+    \item Tập trung logic tạo object.
+\end{itemize}
+
+\section{Strategy Pattern}
+
+Strategy Pattern cho phép thay đổi thuật toán trong thời gian chạy.
+
+Ví dụ:
+
+\begin{lstlisting}
+class StandardShipping:
+    def calculate(self, weight):
+        return weight * 10
+
+class ExpressShipping:
+    def calculate(self, weight):
+        return weight * 20
+
+class ShippingService:
+    def __init__(self, strategy):
+        self.strategy = strategy
+
+    def calculate_fee(self, weight):
+        return self.strategy.calculate(weight)
+\end{lstlisting}
+
+Lợi ích:
+
+\begin{itemize}
+    \item Tránh sử dụng quá nhiều câu lệnh if-else;
+    \item Dễ bổ sung thuật toán mới;
+    \item Tuân thủ nguyên tắc Open-Closed.
+\end{itemize}
+
+\section{Dependency Injection}
+
+Dependency Injection là kỹ thuật truyền dependency từ bên ngoài thay vì tự khởi tạo bên trong lớp.
+
+Ví dụ:
+
+\begin{lstlisting}
+class OrderService:
+    def __init__(self, payment_service, order_repo):
+        self.payment_service = payment_service
+        self.order_repo = order_repo
+\end{lstlisting}
+
+Lợi ích:
+
+\begin{itemize}
+    \item Dễ kiểm thử;
+    \item Dễ mock dependency;
+    \item Giảm coupling giữa các module;
+    \item Dễ thay thế implementation.
+\end{itemize}
+
+\section{Singleton Pattern}
+
+Singleton đảm bảo chỉ tồn tại một instance của lớp.
+
+Ví dụ:
+
+\begin{lstlisting}
+class Settings:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+
+        return cls._instance
+\end{lstlisting}
+
+Pattern này thường được dùng cho:
+
+\begin{itemize}
+    \item Config;
+    \item Logger;
+    \item Connection Manager.
+\end{itemize}
+
+Tuy nhiên cần hạn chế lạm dụng do có thể gây khó khăn cho việc kiểm thử.
+
+\section{Testing Structure}
+
+Cấu trúc kiểm thử được đề xuất:
+
+\begin{lstlisting}
+tests/
+|-- unit/
+|   \-- test_user_service.py
+|
+\-- integration/
+    \-- test_user_api.py
+\end{lstlisting}
+
+Ví dụ Unit Test:
+
+\begin{lstlisting}
+def test_get_user_profile():
+    fake_repo = FakeUserRepository()
+
+    service = UserService(fake_repo)
+
+    user = service.get_user_profile(1)
+
+    assert user.id == 1
+\end{lstlisting}
+
+Việc phân tách Unit Test và Integration Test giúp phát hiện lỗi nhanh và tăng độ tin cậy của hệ thống.
+
+\section{Quản lý cấu hình}
+
+Không nên hard-code cấu hình trong mã nguồn.
+
+Ví dụ không nên làm:
+
+\begin{lstlisting}
+DATABASE_URL = "postgres://admin:123456@localhost/db"
+\end{lstlisting}
+
+Thay vào đó sử dụng file \texttt{.env}:
+
+\begin{lstlisting}
+DATABASE_URL=postgres://localhost/app
+DEBUG=true
+\end{lstlisting}
+
+Kết hợp với lớp cấu hình:
+
+\begin{lstlisting}
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    database_url: str
+    debug: bool = False
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+\end{lstlisting}
+
+\section{Template tổng quát cho dự án Python}
+
+\begin{lstlisting}
+backend/
+|-- pyproject.toml
+|-- README.md
+|
+|-- src/
+|   \-- app/
+|       |-- main.py
+|       |-- api/
+|       |-- core/
+|       |-- models/
+|       |-- services/
+|       |-- repositories/
+|       \-- utils/
+|
+\-- tests/
+\end{lstlisting}
+
+Cấu trúc này phù hợp với:
+
+\begin{itemize}
+    \item FastAPI Backend;
+    \item AI Agent;
+    \item Tool-use System;
+    \item Chatbot;
+    \item Microservice;
+    \item Internal Automation Tool.
+\end{itemize}
+
+\section{Kết luận}
+
+Việc tổ chức cấu trúc dự án hợp lý kết hợp với các Design Pattern phù hợp giúp nâng cao chất lượng phần mềm.
+
+Các thành phần nên ưu tiên áp dụng bao gồm:
+
+\begin{enumerate}
+    \item Repository Pattern;
+    \item Service Layer;
+    \item Factory Pattern;
+    \item Strategy Pattern;
+    \item Dependency Injection.
+\end{enumerate}
+
+Nhìn chung, một dự án Python chuyên nghiệp cần hướng tới các tiêu chí:
+
+\begin{center}
+Dễ đọc --- Dễ kiểm thử --- Dễ bảo trì --- Dễ mở rộng.
+\end{center}
+
+\end{document}

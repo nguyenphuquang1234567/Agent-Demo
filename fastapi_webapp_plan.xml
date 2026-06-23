@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<implementation_plan>
+    <phase step="1">
+        <name>Khởi tạo Cấu trúc API & Cài đặt Dependencies</name>
+        <tasks>
+            <task>Cài đặt các thư viện: fastapi, uvicorn, python-multipart (để hỗ trợ upload ảnh).</task>
+            <task>Tạo các thư mục: src/app/api/ (chứa backend) và src/app/static/ (chứa giao diện Web App).</task>
+        </tasks>
+    </phase>
+    
+    <phase step="2">
+        <name>Phát triển Tầng API Backend (FastAPI)</name>
+        <tasks>
+            <task>Tạo src/app/api/chat_manager.py: Xây dựng lớp quản lý Session in-memory để giữ ngữ cảnh chat (Conversation History) cho từng người dùng riêng biệt thông qua session_id.</task>
+            <task>Tạo src/app/api/server.py: Cấu hình ứng dụng FastAPI, tích hợp CORS.</task>
+            <task>Định nghĩa Endpoint: POST /api/chat/start -> Khởi tạo session và trả về lời chào.</task>
+            <task>Định nghĩa Endpoint: POST /api/chat/message -> Nhận tin nhắn (text/hình ảnh), đưa qua Gemini và trả về câu trả lời.</task>
+            <task>Mount thư mục src/app/static/ vào FastAPI để phục vụ giao diện Web ngay trên cùng một Port.</task>
+        </tasks>
+    </phase>
+    
+    <phase step="3">
+        <name>Thiết kế & Phát triển Web App Interface</name>
+        <tasks>
+            <task>Xây dựng src/app/static/index.html: Khung giao diện Chat UI hiện đại (Chat Box, Input Area, Upload Button).</task>
+            <task>Viết src/app/static/style.css: Áp dụng chuẩn thiết kế UI/UX cao cấp (Glassmorphism, Vibrant Gradients, Micro-animations khi gửi tin nhắn/loading).</task>
+            <task>Viết src/app/static/script.js: Logic tương tác với API (Fetch API), xử lý upload file ảnh, phân tích Markdown trả về từ AI, tự động cuộn (auto-scroll).</task>
+        </tasks>
+    </phase>
+</implementation_plan>

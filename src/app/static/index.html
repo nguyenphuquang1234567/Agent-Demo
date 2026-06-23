@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Thư viện marked.js để render Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Thư viện FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+    
+    <div class="app-container">
+        <header class="chat-header">
+            <div class="header-info">
+                <div class="avatar-container">
+                    <img src="https://cdn-icons-png.flaticon.com/512/8044/8044309.png" alt="AI Avatar" class="ai-avatar">
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="header-text">
+                    <h1>Dr. AI Assistant</h1>
+                    <p>Bệnh viện Đa khoa Quốc tế</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+        
+        <main class="chat-box" id="chat-box">
+            <!-- Messages will be injected here -->
+            <div class="message ai-message loading" id="loading-indicator" style="display: none;">
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="chat-input-area">
+            <div class="image-preview-container" id="image-preview-container" style="display: none;">
+                <img id="image-preview" src="" alt="Preview">
+                <button class="remove-image" id="remove-image"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="chat-form" class="input-form">
+                <label for="image-upload" class="upload-btn">
+                    <i class="fas fa-paperclip"></i>
+                </label>
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                
+                <textarea id="message-input" placeholder="Nhập triệu chứng của bạn..." rows="1" autofocus></textarea>
+                
+                <button type="submit" class="send-btn" id="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

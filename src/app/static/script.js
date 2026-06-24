@@ -47,6 +47,15 @@ function appendMessage(content, className, imageUrl = null) {
     scrollToBottom();
 }
 
+// Hàm tạo tin nhắn rỗng cho hiệu ứng gõ phím (streaming)
+function createEmptyMessage(className) {
+    const div = document.createElement('div');
+    div.className = `message ${className}`;
+    chatBox.insertBefore(div, loadingIndicator);
+    scrollToBottom();
+    return div;
+}
+
 function scrollToBottom() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
@@ -141,11 +150,24 @@ chatForm.addEventListener('submit', async function(e) {
             body: formData
         });
         
-        const data = await response.json();
+        loadingIndicator.style.display = 'none'; // Ẩn loading khi bắt đầu nhận data
         
         if (response.ok) {
-            appendMessage(data.response, 'ai-message');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let aiMessageDiv = createEmptyMessage('ai-message');
+            let accumulatedContent = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                accumulatedContent += chunk;
+                aiMessageDiv.innerHTML = marked.parse(accumulatedContent);
+                scrollToBottom();
+            }
         } else {
+            const data = await response.json().catch(() => ({}));
             appendMessage(`Lỗi: ${data.detail || 'Có lỗi xảy ra'}`, 'ai-message');
         }
     } catch (error) {

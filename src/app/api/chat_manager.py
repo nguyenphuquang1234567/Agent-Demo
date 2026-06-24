@@ -63,6 +63,7 @@ class ChatManager:
                 config=types.GenerateContentConfig(
                     cached_content=self.cache_name,
                     tools=[check_room_status, book_appointment, search_web_for_medical_info],
+                    automatic_function_calling={"disable": True},
                     temperature=0.3
                 )
             )
@@ -75,6 +76,7 @@ class ChatManager:
                 config=types.GenerateContentConfig(
                     system_instruction=dynamic_instruct,
                     tools=[check_room_status, book_appointment, search_web_for_medical_info],
+                    automatic_function_calling={"disable": True},
                     temperature=0.3
                 )
             )

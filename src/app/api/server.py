@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Form, UploadFile, File
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -7,7 +8,9 @@ import os
 import io
 from PIL import Image
 
+from google.genai import types
 from src.app.api.chat_manager import chat_manager, recommender
+from src.app.main import check_room_status, book_appointment, search_web_for_medical_info
 
 app = FastAPI(title="Hospital Agent API")
 
@@ -62,8 +65,48 @@ async def send_message(
         message_content = augmented_prompt
         
     try:
-        response = chat.send_message(message_content) # type: ignore
-        return {"response": response.text}
+        def stream_generator():
+            try:
+                current_response = chat.send_message_stream(message_content) # type: ignore
+                
+                while True:
+                    function_call_detected = None
+                    for chunk in current_response:
+                        if chunk.text:
+                            yield chunk.text
+                        if getattr(chunk, 'function_calls', None):
+                            function_call_detected = chunk.function_calls[0]
+                    
+                    if function_call_detected:
+                        # Thực thi Tool thủ công
+                        tool_name = function_call_detected.name
+                        args = function_call_detected.args
+                        
+                        try:
+                            if tool_name == "check_room_status":
+                                result = check_room_status(**args)
+                            elif tool_name == "book_appointment":
+                                result = book_appointment(**args)
+                            elif tool_name == "search_web_for_medical_info":
+                                result = search_web_for_medical_info(**args)
+                            else:
+                                result = f"Tool {tool_name} không tồn tại."
+                        except Exception as e:
+                            result = f"Lỗi khi chạy tool {tool_name}: {str(e)}"
+                            
+                        # Gửi kết quả lại cho AI tiếp tục stream
+                        current_response = chat.send_message_stream(
+                            types.Part.from_function_response(
+                                name=tool_name, 
+                                response={"result": result}
+                            )
+                        )
+                    else:
+                        break # Kết thúc nếu không còn gọi hàm
+            except Exception as e:
+                yield f"\n\n**Lỗi Stream:** {str(e)}"
+                
+        return StreamingResponse(stream_generator(), media_type="text/plain")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lỗi khi gửi qua Gemini: {str(e)}")
 
